@@ -1,0 +1,70 @@
+# ==========================
+# Python
+# ==========================
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables / secrets
+.env
+
+
+# ==========================
+# Jupyter Notebook
+# ==========================
+
+.ipynb_checkpoints/
+
+
+# ==========================
+# Data files
+# ==========================
+
+# Ignore raw and processed datasets
+data/raw/
+data/processed/
+
+# Large data formats
+*.csv
+*.json
+*.parquet
+*.xlsx
+
+# Keep literature matrix
+!literature/Literature_Matrix.xlsx
+
+
+# ==========================
+# LaTeX
+# ==========================
+
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+
+# ==========================
+# OS files
+# ==========================
+
+.DS_Store
+Thumbs.db
+
+
+# ==========================
+# IDE files
+# ==========================
+
+.vscode/
+.idea/
