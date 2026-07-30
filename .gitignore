@@ -1,7 +1,4 @@
-# ==========================
 # Python
-# ==========================
-
 # Python cache files
 __pycache__/
 *.py[cod]
@@ -16,35 +13,47 @@ env/
 .env
 
 
-# ==========================
-# Jupyter Notebook
-# ==========================
 
+# Jupyter Notebook
 .ipynb_checkpoints/
 
 
-# ==========================
-# Data files
-# ==========================
 
+# Data files
 # Ignore raw and processed datasets
 data/raw/
 data/processed/
 
 # Large data formats
-*.csv
-*.json
 *.parquet
 *.xlsx
+*.xml
+*.7z
+
+
+# Download Artifacts
+*.aria2
+
+
+# Generated JSON
+logs/*.json
+results/**/*.json
+
+
+# Generated csv
+data/**/*.csv
+
+
+#Validation logs
+logs/
+    
+
 
 # Keep literature matrix
 !literature/Literature_Matrix.xlsx
 
 
-# ==========================
 # LaTeX
-# ==========================
-
 *.aux
 *.log
 *.out
@@ -54,17 +63,13 @@ data/processed/
 *.fdb_latexmk
 
 
-# ==========================
-# OS files
-# ==========================
 
+# OS files
 .DS_Store
 Thumbs.db
 
 
-# ==========================
-# IDE files
-# ==========================
 
+# IDE files
 .vscode/
 .idea/
