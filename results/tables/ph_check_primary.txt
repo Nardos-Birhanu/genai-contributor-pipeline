@@ -1,0 +1,55 @@
+====================================================================
+PROPORTIONAL-HAZARDS DIAGNOSTIC -- primary outcome
+Generated: 2026-08-04T14:21:16.845878+00:00
+====================================================================
+  panel rows: 750,373   events: 64,672
+  cohort months: 2021-12 .. 2023-11 (24 distinct)
+  zero-duration rows: 28,346 (kept as observed; rank-based estimators are unaffected)
+  Schoenfeld test on a random subsample of 500,000 rows
+  (rho is stable well below full N; the full-sample p-value would
+   reject on any trivial departure)
+
+====================================================================
+M1  hazard ~ post + cohort_idx   [pre-specified, reported]
+====================================================================
+  reported HR(post) = 0.9744  [0.9455, 1.0042]
+
+  covariate         test stat             p
+  cohort_idx           44.565     2.460e-11
+  post                  2.722     9.900e-02
+
+  Schoenfeld correlation with time, 'post': rho = +0.0099
+  Magnitude verdict: NEGLIGIBLE -- hazard ratio is a fair summary
+
+====================================================================
+M2  hazard ~ post                [trend sensitivity]
+====================================================================
+  reported HR(post) = 0.8133  [0.8003, 0.8264]
+
+  covariate         test stat             p
+  post                187.707     1.007e-42
+
+  Schoenfeld correlation with time, 'post': rho = +0.0201
+  Magnitude verdict: NEGLIGIBLE -- hazard ratio is a fair summary
+
+--------------------------------------------------------------------
+EARLY vs LATE FOLLOW-UP (M1, split at 30 days)
+--------------------------------------------------------------------
+  If the two hazard ratios are close, non-proportionality is not
+  materially distorting the reported estimate.
+
+    HR(post), full follow-up   : 0.9744
+    HR(post), first  30 days   : 0.9815
+    HR(post), beyond  30 days  : 0.9378
+
+    Spread 0.0437 -- effect is stable across follow-up.
+
+--------------------------------------------------------------------
+SUGGESTED REPORTING LANGUAGE
+--------------------------------------------------------------------
+  The proportional-hazards assumption was assessed using scaled
+  Schoenfeld residuals. The correlation between residuals and
+  ranked follow-up time was negligible (rho = +0.010), and hazard
+  ratios estimated over early and late follow-up were similar, so
+  the reported hazard ratio is a fair summary of the difference
+  between cohorts.

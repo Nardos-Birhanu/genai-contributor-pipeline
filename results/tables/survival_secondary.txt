@@ -1,0 +1,43 @@
+OUTCOME secondary
+Generated: 2026-08-04T14:17:39.767671+00:00
+Panel: data/processed\analysis_panel.parquet
+N=750,373
+cohort months: 2021-12 .. 2023-11 (24 distinct)
+pre  n=444,490  events=178,623  conv=0.4019
+post n=305,883  events=125,554  conv=0.4105
+
+log-rank chi2=79.366 p=5.161e-19
+
+collinearity: corr(post, cohort_idx) = 0.8512   VIF = 3.63
+  NOTE: moderate collinearity. Compare M1 and M2 below; a stable
+  HR(post) across the two indicates the finding does not depend
+  on how the secular trend is modelled.
+
+==============================================================
+M1 (PRE-SPECIFIED, REPORTED): hazard ~ post + cohort_idx
+==============================================================
+                coef  exp(coef)  se(coef)  coef lower 95%  coef upper 95%  exp(coef) lower 95%  exp(coef) upper 95%  cmp to        z         p   -log2(p)
+covariate                                                                                                                                                
+post        0.013272   1.013361  0.007012       -0.000471        0.027015             0.999530             1.027384     0.0  1.89286  0.058377   4.098468
+cohort_idx  0.002529   1.002532  0.000526        0.001497        0.003561             1.001498             1.003567     0.0  4.80424  0.000002  19.296138
+
+==============================================================
+M2 (SENSITIVITY): hazard ~ post   [no secular-trend control]
+==============================================================
+               coef  exp(coef)  se(coef)  coef lower 95%  coef upper 95%  exp(coef) lower 95%  exp(coef) upper 95%  cmp to          z             p   -log2(p)
+covariate                                                                                                                                                     
+post       0.041938    1.04283  0.003683         0.03472        0.049156             1.035329             1.050385     0.0  11.387211  4.842430e-30  97.382112
+
+--------------------------------------------------------------
+TREND-SPECIFICATION SENSITIVITY
+--------------------------------------------------------------
+  M1  HR(post) = 1.0134  [0.9995, 1.0274]   (with trend)
+  M2  HR(post) = 1.0428  [1.0353, 1.0504]   (no trend)
+  absolute difference = 0.0295  (2.9% of M1)
+
+  STABLE. HR(post) changes little across trend specifications, so
+  the estimate does not depend on how the secular decline is
+  modelled. Report M1; note M2 as a sensitivity check.
+
+NOTE: hazard ratio < 1 indicates lower/slower conversion post-2022.
+Proportional-hazards assumption is assessed separately (src/analysis/ph_check.py).

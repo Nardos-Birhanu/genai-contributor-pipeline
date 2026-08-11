@@ -1,0 +1,6 @@
+Outcome,Pre-ChatGPT,Post-ChatGPT
+Primary: first accepted answer (rate),0.0931,0.0761
+Primary: events (n),"41,381","23,291"
+Secondary: first answer (rate),0.4019,0.4105
+Secondary: events (n),"178,623","125,554"
+Total newcomers (n),"444,490","305,883"

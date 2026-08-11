@@ -1,0 +1,39 @@
+================================================================
+DESCRIPTIVE STATISTICS REPORT
+Generated: 2026-08-04T14:15:18.883580+00:00Z
+Panel:     data/processed/analysis_panel.parquet
+================================================================
+
+## SAMPLE COMPOSITION
+Total newcomers: 750,373
+  post: 305,883
+  pre: 444,490
+Cohort month range: 2021-12 to 2023-11 (24 distinct months)
+Per-cohort-month table written: cohort_monthly.csv (24 rows)
+
+## CONVERSION OUTCOMES
+  [post] n=305,883
+      primary   (first accepted answer): rate=0.0761  events=23,291
+      secondary (first answer):          rate=0.4105  events=125,554
+  [pre] n=444,490
+      primary   (first accepted answer): rate=0.0931  events=41,381
+      secondary (first answer):          rate=0.4019  events=178,623
+  [overall] primary=0.0862  secondary=0.4054
+
+## TIME-TO-EVENT (among converters only)
+  [pre] primary (days to first accepted answer, converters):
+      median=1.0 mean=40.5 p25=0.0 p75=34.0 p90=161.0
+  [pre] secondary (days to first answer, converters):
+      median=0.0 mean=15.0 p25=0.0 p75=0.0 p90=28.0
+  [post] primary (days to first accepted answer, converters):
+      median=1.0 mean=30.1 p25=0.0 p75=14.0 p90=111.0
+  [post] secondary (days to first answer, converters):
+      median=0.0 mean=9.8 p25=0.0 p75=0.0 p90=7.0
+  Time-to-event table written: time_to_event.csv
+
+## NEWCOMER CHARACTERISTICS (optional columns)
+  No optional characteristic columns present in panel (initial_post_type, initial_score, n_questions, etc.).
+  Panel columns available: cohort_month, cohort_period, event_primary, event_secondary, faa_accept, faa_created, first_answer_date, first_post_date, time_primary_acceptdate_days, time_primary_days, time_secondary_days, user_id, window_end
+
+Table 1 written: table1_sample_characteristics.{csv,tex}
+Table 2 written: table2_conversion_outcomes.{csv,tex}
