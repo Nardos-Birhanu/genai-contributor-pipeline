@@ -1,48 +1,12 @@
 """
-ph_check.py  --  proportional-hazards diagnostics for the Cox models.
+ph_check.py -- proportional-hazards checks for the Cox models.
 
-UPDATED to stay aligned with survival.py. Two changes:
-
-  CHANGE 1 -- NO DURATION CLIPPING.
-      The previous version clipped durations to a minimum of 0.5 days. That was
-      unnecessary and, worse, meant this script fitted a slightly different
-      specification from the one survival.py reports. Verified: Kaplan-Meier,
-      the log-rank test, Cox partial likelihood, and the scaled Schoenfeld
-      residuals are all rank-based, and durations are whole days, so mapping
-      0 -> 0.5 preserves every ordering and leaves every risk set unchanged.
-      Hazard ratios, Schoenfeld statistics, and rho are identical either way.
-      Zeros are therefore kept as observed, exactly as in survival.py, so the
-      "reported HR" line below matches results/tables/survival_*.txt.
-
-  CHANGE 2 -- BOTH REPORTED MODELS ARE CHECKED.
-      survival.py now reports two specifications, because restricting the panel
-      to the frozen 24-month window raises the correlation between `post` and
-      the linear cohort trend to about 0.87 (VIF ~4):
-          M1: post + cohort_idx   (pre-specified; primary)
-          M2: post only           (trend-specification sensitivity)
-      The PH assumption is checked for both. It can hold in one and not the
-      other; if it fails only for M1, that is itself evidence the trend control
-      is absorbing time-varying structure.
-
-READING THE OUTPUT AT LARGE N
------------------------------
-At this sample size the Schoenfeld test rejects on trivial departures: its null
-is "exactly proportional", which nothing real ever is. Judge on MAGNITUDE of the
-correlation between scaled residuals and ranked follow-up time:
-
-  |rho| < 0.05          negligible   -- the hazard ratio is a fair summary
-  0.05 <= |rho| < 0.15  mild         -- report the HR with an explicit caveat
-  |rho| >= 0.15         substantial  -- lead with Kaplan-Meier; treat the HR as
-                                        an average effect over follow-up
-
-The early-versus-late refit is the more interpretable check: if the hazard ratio
-is similar in both halves of follow-up, non-proportionality is not materially
-distorting the reported estimate, whatever the formal test says.
+Checks both reported models and keeps durations unchanged to match survival.py.
 
 USAGE
-    python -m src.analysis.ph_check
+    python -m src.analysis.ph_check --outcome primary
     python -m src.analysis.ph_check --outcome secondary
-    python -m src.analysis.ph_check --sample 0        # no subsampling
+    python -m src.analysis.ph_check --outcome both --sample 500000
 """
 from __future__ import annotations
 
@@ -59,11 +23,11 @@ from lifelines.statistics import proportional_hazard_test
 SPLIT_DAYS = 30  # early/late follow-up boundary
 
 MODELS = {
-    "M1": ["post", "cohort_idx"],   # pre-specified, reported as primary
-    "M2": ["post"],                 # trend-specification sensitivity
+    "M1": ["post", "cohort_idx"],   # primary
+    "M2": ["post"],                 # trend sensitivity
 }
 MODEL_LABEL = {
-    "M1": "M1  hazard ~ post + cohort_idx   [pre-specified, reported]",
+    "M1": "M1  hazard ~ post + cohort_idx   [primary]",
     "M2": "M2  hazard ~ post                [trend sensitivity]",
 }
 
@@ -81,11 +45,11 @@ def prepare(df: pd.DataFrame, outcome: str) -> tuple[pd.DataFrame, str, str]:
 
     d = df[df[t_col] >= 0].copy()
     d["post"] = (d["cohort_period"] == "post").astype(int)
-    # identical construction to survival.py
+    # Keep cohort index consistent with survival.py.
     d["cohort_idx"] = (
         pd.to_datetime(d["cohort_month"] + "-01").rank(method="dense").astype(int) - 1
     )
-    # NOTE: durations are NOT clipped -- see module docstring.
+    # NOTE: # Keep observed durations unchanged.
     return d, t_col, e_col
 
 
@@ -102,10 +66,10 @@ def fit(d: pd.DataFrame, t_col: str, e_col: str, covs: list[str]) -> CoxPHFitter
 def verdict(rho: float) -> str:
     a = abs(rho)
     if a < 0.05:
-        return "NEGLIGIBLE -- hazard ratio is a fair summary"
+        return "NEGLIGIBLE -- hazard ratio is a reasonable summary"
     if a < 0.15:
-        return "MILD -- report the hazard ratio with an explicit caveat"
-    return "SUBSTANTIAL -- lead with Kaplan-Meier; HR is an average effect"
+        return "MILD -- report the hazard ratio with a caveat"
+    return "SUBSTANTIAL -- emphasize Kaplan-Meier; HR is an average effect"
 
 
 def check_model(d, d_test, t_col, e_col, covs, key, say) -> float:
@@ -170,8 +134,8 @@ def run(cfg: dict, outcome: str, sample: int | None, out_dir: str) -> None:
     if sample and len(d) > sample:
         d_test = d.sample(n=sample, random_state=42)
         say(f"  Schoenfeld test on a random subsample of {sample:,} rows")
-        say("  (rho is stable well below full N; the full-sample p-value would")
-        say("   reject on any trivial departure)")
+        say("  (rho is stable at this sample size; the full-sample p-value is")
+        say("   highly sensitive to small departures from proportional hazards)")
     else:
         d_test = d
         say(f"  Schoenfeld test on all {len(d):,} rows")
@@ -180,13 +144,13 @@ def run(cfg: dict, outcome: str, sample: int | None, out_dir: str) -> None:
     for key, covs in MODELS.items():
         rhos[key] = check_model(d, d_test, t_col, e_col, covs, key, say)
 
-    # ---- early vs late follow-up, on the pre-specified model -------------
+    # ---- early vs late follow-up
     say("")
     say("-" * 68)
     say(f"EARLY vs LATE FOLLOW-UP (M1, split at {SPLIT_DAYS} days)")
     say("-" * 68)
-    say("  If the two hazard ratios are close, non-proportionality is not")
-    say("  materially distorting the reported estimate.")
+    say("  Similar hazard ratios suggest limited variation in the effect")
+    say("  across follow-up.")
 
     covs = MODELS["M1"]
     hr_full = fit(d, t_col, e_col, covs).summary.loc["post", "exp(coef)"]
@@ -219,14 +183,10 @@ def run(cfg: dict, outcome: str, sample: int | None, out_dir: str) -> None:
     else:
         say("    (too few late events to fit a separate late-period model)")
 
-    # ---- reporting language ----------------------------------------------
-    # Keyed to BOTH signals: the Schoenfeld correlation and the early/late
-    # refit. They can disagree -- rho can look negligible while the hazard
-    # ratio still varies substantially across follow-up (or vice versa) --
-    # and the wording must not assert agreement that was not observed.
+
     say("")
     say("-" * 68)
-    say("SUGGESTED REPORTING LANGUAGE")
+    say("REPORTING")
     say("-" * 68)
     rho = rhos["M1"]
     a = abs(rho)

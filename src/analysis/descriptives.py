@@ -1,19 +1,19 @@
 """
-descriptives.py — Descriptive statistics over analysis_panel.parquet.
+descriptives.py --> calculates descriptive statistics from the analysis panel.
 
-All aggregation runs in DuckDB over Parquet; the full panel is never loaded into
-pandas. Only small aggregate result sets are pulled into Python for formatting.
+Uses DuckDB to work directly on the Parquet file. The full panel is not
+loaded into pandas.
 
-Produces (no interpretation):
-  results/tables/table1_sample_characteristics.{csv,tex}
-  results/tables/table2_conversion_outcomes.{csv,tex}
-  results/tables/cohort_monthly.csv
-  results/tables/time_to_event.csv
-  results/descriptives/descriptive_report.txt
+Outputs:
+results/tables/table1_sample_characteristics.{csv,tex}
+results/tables/table2_conversion_outcomes.{csv,tex}
+results/tables/cohort_monthly.csv
+results/tables/time_to_event.csv
+results/descriptives/descriptive_report.txt
 
-USAGE:
-    python -m src.analysis.descriptives
-    python -m src.analysis.descriptives --panel data/processed/analysis_panel.parquet
+Usage:
+python -m src.analysis.descriptives
+python -m src.analysis.descriptives --panel data/processed/analysis_panel.parquet
 """
 from __future__ import annotations
 import argparse, os, datetime
@@ -27,7 +27,7 @@ CORE_COLS = [
     "event_secondary", "time_secondary_days",
     "time_primary_acceptdate_days",
 ]
-# optional columns we'll use IF present (script degrades gracefully if absent)
+# optional columns we'll use IF present
 OPTIONAL_COLS = [
     "initial_post_type", "first_post_type", "post_type",
     "initial_score", "first_post_score", "score",

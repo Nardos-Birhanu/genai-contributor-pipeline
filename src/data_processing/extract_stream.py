@@ -1,19 +1,19 @@
 """
-Streaming XML -> slim Parquet, reading from a PIPE (7-Zip `-so` output) or a file.
+extract_stream.py --> extracts XML data into Parquet files.
 
-Never requires the decompressed XML on disk. lxml.iterparse consumes the byte
-stream incrementally; each <row> is reduced to the required attributes and
-cleared immediately, so peak memory stays flat regardless of a 100-300 GB input.
+Reads the XML as a stream, so the full XML does not need to be stored
+or loaded into memory. Only the required fields are kept.
 
-USAGE (streamed from the .7z, nothing extracted to disk):
-    7z x -so data\\raw\\stackoverflow.com.7z Posts.xml ^
-      | python -m src.data_processing.extract_stream --which posts
+Usage (from the .7z file):
+7z x -so data\raw\stackoverflow.com.7z Posts.xml ^
+    | python -m src.data_processing.extract_stream --which posts
 
-USAGE (from an already-extracted file, e.g. on an external SSD):
-    python -m src.data_processing.extract_stream --which posts --infile D:\\Posts.xml
+Usage (from an extracted XML file):
+python -m src.data_processing.extract_stream --which posts --infile D:\Posts.xml
 
-USAGE (tiny smoke test from a local sample file):
-    python -m src.data_processing.extract_stream --which posts --infile tests\\sample_posts.xml --limit 1000
+Usage (smoke test):
+python -m src.data_processing.extract_stream --which posts --infile tests\sample_posts.xml --limit 1000
+
 """
 from __future__ import annotations
 import argparse, os, sys, time, logging

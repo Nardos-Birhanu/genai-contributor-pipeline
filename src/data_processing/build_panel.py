@@ -1,35 +1,17 @@
 """
-build_panel.py  --  cohort construction, acceptance reconstruction, panel assembly.
-
-CORRECTED VERSION. The previous build omitted two exclusions specified in the
-frozen design; both are applied here and both are logged so the panel's
-provenance is auditable.
-
-  EXCLUSION 1 -- COHORT WINDOW.
-      Restrict to the frozen symmetric windows:
-          pre  : 2021-12 .. 2022-11
-          post : 2022-12 .. 2023-11
-      Without this the "pre" group spans the platform's entire history and the
-      comparison is not the one the design specifies.
-
-  EXCLUSION 2 -- WINDOW COMPLETENESS.
-      Every cohort member needs a full 12-month observation window inside the
-      data. Cohorts entering later than (dump_end - 12 months) cannot have one:
-      they are recorded as non-converters because observation stopped, not
-      because they failed to convert. Those cohorts fall entirely in the post
-      period, so including them biases the post rate downward.
-
-      With the 2025-03-31 dump and a Nov-2023 latest cohort this exclusion is
-      already satisfied by EXCLUSION 1 (Nov 2023 + 12 months = Nov 2024, well
-      inside coverage). It is enforced explicitly anyway so the panel remains
-      correct if the cohort window is ever changed.
-
-Everything runs in DuckDB over the interim Parquet; nothing large is loaded
-into Python memory.
-
-USAGE
-    python -m src.data_processing.build_panel
-    python -m src.data_processing.build_panel --no-window-restriction   # diagnostic only
+build_panel.py --> builds the newcomer cohort panel and reconstructs acceptance.
+ 
+Applies the two design exclusions:
+   pre  : 2021-12 to 2022-11
+   post : 2022-12 to 2023-11
+ 
+Also checks that each cohort has a full 12-month observation window.
+Both checks are logged.
+ 
+Runs with DuckDB over the interim Parquet files.
+ 
+Usage:
+   python -m src.data_processing.build_panel
 """
 from __future__ import annotations
 
@@ -212,7 +194,7 @@ def build(cfg: dict, restrict: bool = True) -> None:
         FROM kept
     """)
 
-    # ---- integrity guards ------------------------------------------------
+    # ---- integrity checks------------------------------------------------
     neg = con.execute(
         "SELECT COUNT(*) FROM final "
         "WHERE time_primary_days < 0 OR time_secondary_days < 0"
@@ -255,3 +237,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+
+

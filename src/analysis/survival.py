@@ -1,36 +1,13 @@
 """
-survival.py  --  Kaplan-Meier and Cox proportional hazards analysis.
+survival.py --> Kaplan-Meier and Cox proportional-hazards analysis.
 
-UPDATED. Two changes from the previous version, both driven by the corrected
-cohort window; the estimation logic is otherwise unchanged so results remain
-directly comparable.
+Fits two Cox models:
+    M1: post + cohort_idx   (primary)
+    M2: post only           (sensitivity)
 
-  CHANGE 1 -- TREND SENSITIVITY.
-      Restricting the panel to the frozen 24-month window (2021-12 .. 2023-11)
-      raises the correlation between `post` and the linear `cohort_idx` trend
-      from about 0.60 to about 0.87 (VIF ~1.6 -> ~4.0). Over 24 months with the
-      boundary at the midpoint, a smooth secular decline and a step change at
-      the boundary are hard to distinguish. Estimates stay unbiased and the
-      sample is large, so significance is not at risk, but the post coefficient
-      becomes harder to interpret as a discontinuity.
+Zero-day events are kept as observed to match the analysis design.
 
-      The model is therefore fitted TWICE:
-          M1: post + cohort_idx   (the pre-specified model; reported as primary)
-          M2: post only           (sensitivity; no secular-trend control)
-      If HR(post) is similar across the two, the finding is robust to how the
-      secular decline is modelled. If it moves materially, that must be
-      disclosed -- the post effect is then sensitive to the trend specification.
-
-  CHANGE 2 -- VECTOR FIGURE OUTPUT.
-      Figures are written as PDF (preferred by the submission guideline) and
-      PNG (for quick viewing).
-
-NOTE ON ZERO DURATIONS.
-      A substantial share of newcomers convert on day 0. Kaplan-Meier, the
-      log-rank test, and Cox partial likelihood are all rank-based, and
-      durations are whole days, so zero durations neither break estimation nor
-      require clipping: mapping 0 -> 0.5 would preserve every ordering and
-      leave every risk set unchanged. Zeros are therefore kept as observed.
+Figures are saved as PDF and PNG.
 
 USAGE
     python -m src.analysis.survival --outcome primary
