@@ -1,225 +1,216 @@
-# Newcomer-to-Contributor Conversion on Stack Overflow, Before and After Generative AI
+# Stack Overflow Newcomer Study
 
-Research repository for a computational social science study of whether the rate at
-which newcomers reach recognised contribution on Stack Overflow changed around the
-public release of generative AI in late 2022. 
+**Did generative AI change how newcomers become contributors on Stack Overflow?**
 
-**Research question.** Did the rate at which newcomer cohorts reach a first accepted
-answer within twelve months of joining change after generative AI became widely
-available; does any change appear at the December 2022 boundary or continue a
-pre-existing trend; and does it operate through participation or through recognition?
+This repository contains the full data pipeline, analysis code, and manuscript for a
+computational social science study of newcomer-to-contributor conversion before and
+after the December 2022 ChatGPT boundary.
+
+The study asks three questions:
+
+- Did newcomer conversion rates change after late 2022?
+- Does any change sit at the December boundary, or does it continue an earlier trend?
+- Does any change operate through participation, or through recognition?
 
 The manuscript is in `docs/`.
 
-## 1. Repository structure
+---
 
+## What is in this repository
 
-config/config.yaml          contains design parameters.
-data/raw/                   Source archive (gitignored, not redistributed)
-data/interim/               Parquet from streaming extraction (gitignored)
-data/processed/             analysis_panel.parquet -- the analysis dataset
-src/data_processing/        extract_stream.py, build_panel.py
-src/analysis/               descriptives.py, survival.py, ph_check.py
-scripts/                    Validation and verification tools
-docs/                       Manuscript, data provenance, Windows run notes
-logs/                       Run logs and verification reports
-results/tables/             Tables and model output
-results/figures/            Kaplan-Meier figures (PDF and PNG)
-results/descriptives/       Descriptive report
+```
+config/config.yaml        All frozen study parameters — the single source of truth
+data/raw/                 The Stack Overflow archive (not tracked; too large)
+data/interim/             Parquet files from extraction (not tracked; regenerable)
+data/processed/           analysis_panel.parquet — the analysis-ready dataset
+src/data_processing/      extract_stream.py, build_panel.py
+src/analysis/             descriptives.py, survival.py, ph_check.py
+scripts/                  Validation and verification scripts
+docs/                     Manuscript, data provenance, Windows run guide
+logs/                     Run logs and verification reports
+results/tables/           Model output and summary tables
+results/figures/          Kaplan–Meier figures (PDF and PNG)
+results/descriptives/     Descriptive statistics report
+```
 
+---
 
+## Quick start
 
+If you have `data/processed/analysis_panel.parquet`, jump straight to
+[Step 6 — Analysis](#6-analysis). 
 
-## 2. Environment
+---
 
-bash
+## Step 1 — Set up the environment
+
+```bash
 conda env create -f environment.yml
 conda activate css_env
+```
 
+**What you need installed:**
+`lxml` · `pyarrow` · `duckdb` · `pandas` · `lifelines` · `matplotlib` · **7-Zip** (for extraction only)
 
-Pipeline dependencies: `lxml` (streaming XML), `pyarrow` (Parquet), `duckdb`
-(panel construction and aggregation), `pandas`, `lifelines` (survival models),
-`matplotlib`. Extraction additionally requires **7-Zip** installed locally.
+> All commands below are run from the repository root.
 
-The pipeline uses neither Spark nor object storage. All processing is single-machine.
+---
 
-**All commands below are run from the repository root.**
+## Step 2 — Get the raw data
 
+Download the **Stack Overflow** data dump, release `2025-03-31`, from the Internet
+Archive. Full download details, the access URL, and the SHA-256 checksum are in
+`docs/data_source.md`.
 
+Place the archive here:
 
-## 3. Raw data
+```
+data/raw/stackoverflow.com.7z    (~63 GB compressed)
+```
 
-**Source.** Stack Exchange public data dump, release **2025-03-31**, Stack Overflow
-site only, obtained from the Internet Archive under CC BY-SA. Full provenance,
-including the access URL and file checksum, is recorded in `docs/data_source.md`.
+> If you downloaded the full network dump, only the Stack Overflow archive is used.
+> All other site archives can be ignored.
 
-**Placement.** Place the archive at the path given in `config/config.yaml`:
+---
 
+## Step 3 — Extract the data
 
-data/raw/stackoverflow.com.7z
+The uncompressed XML files total more than 300 GB — too large to write to disk on a
+typical machine. Instead, 7-Zip streams each file directly into Python, which reads
+only the fields it needs and saves compact Parquet files. **No XML is ever saved.**
 
+> **Windows users: use `cmd.exe`, not PowerShell.**
+> PowerShell re-encodes binary data and will corrupt the stream.
 
-The archive is roughly 63 GB compressed. It is **not** redistributed with this
-repository and is excluded from version control.
+Set up 7-Zip and check the archive contents:
 
-**Only the Stack Overflow archive is required.** If you obtained the full network
-dump, the remaining site archives are unused.
-
-
-
-## 4. Extraction
-
-Uncompressed, the three required XML members exceed 300 GB, which will not fit on a
-typical workstation. The XML is therefore **never written to disk**. 7-Zip decompresses
-one member to standard output; Python parses that byte stream incrementally, retains
-only the fields the analysis needs, and writes compact Parquet. 
-
-### Windows
-
-Binary piping must run in **`cmd.exe`, not PowerShell**. PowerShell applies text
-encoding to pipeline data and will corrupt the stream. Set a session alias for 7-Zip:
-
-bat
+```bat
 set SZ="C:\Program Files\7-Zip\7z.exe"
-
-
-Confirm the archive's internal member names before the long runs:
-
-bat
 %SZ% l data\raw\stackoverflow.com.7z
+```
 
+You should see `Posts.xml`, `Votes.xml`, and `PostHistory.xml`.
 
-Expect `Posts.xml`, `Votes.xml`, `PostHistory.xml`.
+**Run a quick smoke test first** (processes 1,000 rows, takes seconds):
 
-Run a short smoke test before committing to a multi-hour extraction:
-
-bat
+```bat
 %SZ% x -so data\raw\stackoverflow.com.7z Posts.xml | python -m src.data_processing.extract_stream --which posts --limit 1000
+```
 
+If that works, delete the test output and run the three full extractions:
 
-Then delete the truncated test output and run the three full extractions:
-
-bat
+```bat
 %SZ% x -so data\raw\stackoverflow.com.7z Posts.xml       | python -m src.data_processing.extract_stream --which posts
 %SZ% x -so data\raw\stackoverflow.com.7z Votes.xml       | python -m src.data_processing.extract_stream --which votes
 %SZ% x -so data\raw\stackoverflow.com.7z PostHistory.xml | python -m src.data_processing.extract_stream --which posthistory
+```
 
+| Output | Location |
+|---|---|
+| Posts | `data/interim/posts.parquet` |
+| Votes | `data/interim/votes.parquet` |
+| Post history | `data/interim/posthistory.parquet` |
+| Logs | `logs/extract_{posts,votes,posthistory}.log` |
 
-**Outputs:** `data/interim/{posts,votes,posthistory}.parquet`
-**Logs:** `logs/extract_{posts,votes,posthistory}.log`
+> `PostHistory` is only needed for the deleted-post check. Posts and votes are enough
+> for the main analysis. See `docs/RUN_windows.md` for disk-space guidance.
 
-`PostHistory` is required only for the deleted-post visibility check. The primary and
-secondary outcomes need `posts` and `votes` alone.
+---
 
-Detailed Windows notes, including disk-space guidance, are in `docs/RUN_windows.md`.
+## Step 4 — Validate the extracted data
 
+Run validation before building the panel. If any freeze gate fails, the extraction
+should not be used for analysis.
 
-
-## 5. Validation
-
-Run before building the panel. Validation applies freeze gates: a failure means the
-extraction is not fit to analyse.
-
-bash
+```bash
 python scripts/validate_all.py
+```
 
+**Outputs:** `logs/validate_*.txt`, `logs/validate_*.json`, `logs/validation_summary.json`
 
-This calls `validate_posts.py`, `validate_votes.py`, and `validate_posthistory.py`.
-Individual files can also be validated separately.
+---
 
-**Outputs:** `logs/validate_*.{txt,json}`, `logs/validation_summary.json`
+## Step 5 — Build the analysis panel
 
-Two further verification tools confirm that the extraction faithfully reflects the
-archive:
-
-bash
-python scripts/check_stream_completeness.py      # detects a truncated stream
-python scripts/verify_extraction_integrity.py    # schema, nulls, cross-file integrity
-
-
-**Outputs:** `logs/stream_completeness.txt`, `logs/extraction_integrity.txt`
-
-
-
-## 6. Panel construction
-
-bash
+```bash
 python -m src.data_processing.build_panel
+```
+
+This assigns each user to a cohort by their first post month, applies the study's
+cohort-window and observation-window rules, reconstructs acceptance events from the
+vote record, and calculates the survival variables. Everything runs as database queries
+over the Parquet files — nothing large is loaded into memory.
+
+| | |
+|---|---|
+| Input | `data/interim/posts.parquet`, `data/interim/votes.parquet` |
+| Output | `data/processed/analysis_panel.parquet` (one row per newcomer) |
+| Log | `logs/build_panel.txt` |
 
 
-Assigns each user to a cohort by the month of their first post, applies the cohort-window
-and observation-completeness exclusions, reconstructs acceptance events from the vote
-record, and derives the survival variables. Runs as DuckDB queries over the interim
-Parquet; nothing large is loaded into memory.
+---
 
-**Input:** `data/interim/{posts,votes}.parquet`
-**Output:** `data/processed/analysis_panel.parquet` (one row per newcomer)
-**Log:** `logs/build_panel.txt`
+## Step 6 — Analysis
 
+All analysis commands read only `data/processed/analysis_panel.parquet`.
 
-
-
-## 7. Analysis
-
-All three read only `data/processed/analysis_panel.parquet`. A reader who obtains that
-file can reproduce every reported figure without touching the archive.
-
-bash
+```bash
 python -m src.analysis.descriptives
+
 python -m src.analysis.survival --outcome primary
 python -m src.analysis.survival --outcome secondary
-python -m src.analysis.ph_check
 
+python -m src.analysis.ph_check --outcome both --sample 500000
+```
 
-| Command | Produces |
-| `descriptives` | `results/descriptives/descriptive_report.txt`; `results/tables/{table1_sample_characteristics,table2_conversion_outcomes}.{csv,tex}`, `cohort_monthly.csv`, `time_to_event.csv` |
-| `survival` | `results/tables/survival_{primary,secondary}.txt`; `results/figures/km_{primary,secondary}.{pdf,png}` |
+| Command | What it produces |
+|---|---|
+| `descriptives` | `results/descriptives/descriptive_report.txt` · `results/tables/table1_*.{csv,tex}` · `table2_*.{csv,tex}` · `cohort_monthly.csv` · `time_to_event.csv` |
+| `survival` | `results/tables/survival_{primary,secondary}.txt` · `results/figures/km_{primary,secondary}.{pdf,png}` |
 | `ph_check` | `results/tables/ph_check_{primary,secondary}.txt` |
 
-`survival.py` fits the pre-specified model (post indicator plus cohort-month trend) and
-a sensitivity specification omitting the trend, and reports the collinearity between the
-two time controls. `ph_check.py` assesses proportional hazards using scaled Schoenfeld
-residuals and by re-fitting over early and late follow-up.
+`survival.py` fits both the pre-specified model (post indicator plus cohort-month trend)
+and a sensitivity model without the trend term, and reports the collinearity between
+them. `ph_check.py` tests the proportional-hazards assumption using Schoenfeld residuals
+and by re-estimating the model separately over early and late follow-up.
 
+---
 
+## Study parameters
 
-## 8. Design parameters
-
-Frozen in `config/config.yaml`. Changing any of these changes the study.
+These are frozen in `config/config.yaml`. Changing any of them changes the study.
 
 | Parameter | Value |
+|---|---|
 | Dump release | 2025-03-31 |
-| Treatment boundary | 2022-12-01 (period split; ChatGPT released 30 Nov 2022) |
-| Pre-boundary cohorts | 2021-12 to 2022-11 |
-| Post-boundary cohorts | 2022-12 to 2023-11 |
-| Conversion window | 12 months |
-| Newcomer entry | First post, `PostTypeId` 1 or 2 (comments excluded) |
-| Accepted answer | `VoteTypeId` 1 (AcceptedByOriginator), from the vote record |
-| Primary event timing | Answer creation, **not** the acceptance vote |
+| Treatment boundary | 2022-12-01 *(ChatGPT released 30 Nov 2022)* |
+| Pre-boundary cohorts | December 2021 – November 2022 |
+| Post-boundary cohorts | December 2022 – November 2023 |
+| Observation window | 12 months per newcomer |
+| Newcomer entry | First post of type Question (1) or Answer (2); comments excluded |
+| Accepted answer | `VoteTypeId = 1` from the vote record |
+| Primary event timing | Answer creation date, **not** the acceptance vote date |
 
+---
 
+## Two data notes worth knowing
 
-## 9. Data notes
+**Acceptance timestamps are date-level only.**
+Stack Exchange releases vote dates truncated to midnight (`00:00:00`) to protect voter
+anonymity. All 12,570,342 acceptance votes in this dump carry a midnight timestamp.
+This means a same-day acceptance can appear to pre-date its own answer when compared
+against the full-precision post timestamp. The effect is confined to `faa_accept` and
+`time_primary_acceptdate_days`, neither of which is reported. Every reported result uses
+`Posts.CreationDate`. This is also why the primary outcome is timed at answer creation
+rather than acceptance.
 
-**Acceptance-vote timestamps are date-level only.** Stack Exchange releases
-`Votes.CreationDate` truncated to the date, with the time set to `00:00:00`, for voter
-anonymity. All 12,570,342 acceptance votes in this dump carry a midnight timestamp. A
-same-day acceptance therefore appears to precede its own answer when compared against
-the full-precision `Posts.CreationDate`. This affects only `faa_accept` and the derived
-`time_primary_acceptdate_days`, neither of which is reported. Every reported outcome is
-timed from `Posts.CreationDate`. This is one reason the primary event is dated at answer
-creation rather than at acceptance.
+**Deleted posts are not in the dump.**
+Content removed from the platform — including posts taken down under the AI-content
+policy — does not appear in the public data export.
 
-**Deleted content is absent.** Posts removed from the platform, including under the
-AI-generated-content policy, do not appear in the public dump.
+---
 
-Verification records are in `docs/pipeline_log.md`; source provenance in
-`docs/data_source.md`.
+## Verification records
 
-
-
-## 10. Reproducing without the archive
-
-`data/processed/analysis_panel.parquet` is small and is the sole input to every analysis
-step. Sections 7 onward reproduce all reported tables and figures from it alone.
-Sections 3 to 6 are needed only to rebuild the panel from source.
+Full pipeline documentation is in `docs/pipeline_log.md`. Data source details and the
+archive checksum are in `docs/data_source.md`.
