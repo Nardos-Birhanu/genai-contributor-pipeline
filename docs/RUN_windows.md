@@ -1,4 +1,4 @@
-# Streaming Extraction Pipeline — Windows / Anaconda Prompt
+# Streaming Extraction Pipeline — Windows
 
 ## Overview
 
@@ -20,17 +20,18 @@ The 7-Zip application may be installed without adding `7z.exe` to the system PAT
 
 Set a temporary session variable. But this variable is only available in the current terminal session.
 
-bat
+```bat
 set SZ="C:\Program Files\7-Zip\7z.exe"
+```
 
 
 ## 2. Confirm archive contents
 
 Before extraction, verify the internal filenames:
 
-bat
+```bat
 %SZ% l data\raw\stackoverflow.com.7z
-
+```
 
 Expected members:
 
@@ -44,7 +45,7 @@ PostHistory.xml
 Activate the project environment:
 
 bat
-conda activate < your project environment >
+conda activate css_env
 
 
 

@@ -1,34 +1,52 @@
 # Data Source
 
-**Dataset:** Stack Exchange public data dump  Stack Overflow only
-**Release:** 2025-03-31   **Access:** Internet Archive community mirror
-**Archive:** `data/raw/stackoverflow.com.7z`
+**Dataset:** Stack Exchange public data dump, Stack Overflow only
+**Release date:** 2025-03-31   **Access:** Internet Archive
+**Access:** `data/raw/stackoverflow.com.7z`
 
-**Integrity (verified):**
+**Download URL:**  
+https://archive.org/download/stackexchange_20250331/stackexchange_20250331/stackoverflow.com.7z
 
-7z t data/raw/stackoverflow.com.7z  ->  Everything is Ok
-Files: 10
-Archive compressed size:~68 GB
-Total uncompressed: ~357 GB
+**Download command used:**
+```bash
+aria2c -x 16 -s 16 \
+  "https://archive.org/download/stackexchange_20250331/stackexchange_20250331/stackoverflow.com.7z" \
+  --dir=data/raw \
+  --out=stackoverflow.com.7z
+```
 
-Uncompressed member sizes:
-- Posts.xml ~105 GB
+**Download date:** 2026-07-27  
+**Local copy:** `data/raw/stackoverflow.com.7z` #Because file was big, didn't push it to the Github repo.
+
+**SHA256 (verified):**  
+(stackoverflow.com.7z): E98C3850FE4249486E022A26F16AF5B76A29F36C63A0872191AC1B6B8C46812B
+
+Verify before running the pipeline:
+```bash
+
+# Windows (PowerShell)
+Get-FileHash data\raw\stackoverflow.com.7z -Algorithm SHA256
+```
+
+**Archive integrity check:**
+```bash
+7z t data/raw/stackoverflow.com.7z   # -> Everything is Ok, Files: 10
+```
+
+**Sizes:**  
+- compressed size:~68 GB
+- Total uncompressed: ~357 GB
+- Posts.xml ~104 GB
 - Votes.xml ~24 GB
-- PostHistory.xml ~185 GB
+- PostHistory.xml ~181 GB
 
-**Handling:** files are NOT extracted to disk.
-Processing streams each member from the archive via `7z -so` directly into a
-Python parser; only slim Parquet is written. See docs/RUN_windows.md.
+**Handling:** The XML files are not fully extracted to disk.
 
-**Integrity to record after first run:**
+Each file is streamed directly from the archive using `7z -so` and processed by the Python parser. 
+Only the resulting Parquet files are saved. See `RUN_windows.md` for the full run procedure.
 
-SHA256 (stackoverflow.com.7z): E98C3850FE4249486E022A26F16AF5B76A29F36C63A0872191AC1B6B8C46812B
-Download date:  2026-07-27
 
-**Note:** Data were drawn from the Stack Exchange public data dump
-(release 2025-03-31), Stack Overflow site, accessed via the Internet Archive
-community mirror, under CC BY-SA 4.0. XML members were processed by streaming
-decompression without full on-disk extraction.
+**Note:** Data were used under the Stack Exchange CC BY-SA 4.0 license.
 
 
 
