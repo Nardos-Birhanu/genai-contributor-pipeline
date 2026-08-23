@@ -1,0 +1,127 @@
+{
+  "dataset": "votes",
+  "path": "data/interim/votes.parquet",
+  "run_at": "2026-07-28T10:04:28.706707Z",
+  "overall": "PASS",
+  "metadata": {
+    "file_size_bytes": 1814528896,
+    "schema": {
+      "Id": "VARCHAR",
+      "PostId": "VARCHAR",
+      "VoteTypeId": "VARCHAR",
+      "CreationDate": "VARCHAR"
+    },
+    "row_count": 245066794,
+    "votetype_distribution": {
+      "1": 12570342,
+      "2": 188154157,
+      "3": 25482703,
+      "4": 17401,
+      "5": 221,
+      "6": 1233467,
+      "7": 5375,
+      "8": 297420,
+      "9": 296635,
+      "10": 10678745,
+      "11": 561509,
+      "12": 89538,
+      "15": 1211565,
+      "16": 4467716
+    },
+    "acceptance_vote_count": 12570342,
+    "re_accepted_posts": 0,
+    "acceptance_max_date": "2025-03-31T00:00:00.000",
+    "acceptance_postids_total": 12570342,
+    "acceptance_postids_matched": 12354415,
+    "acceptance_postids_deleted": 215927,
+    "acceptance_deleted_pct": 1.7177,
+    "sample_acceptance_rows": [
+      [
+        "619",
+        "326",
+        "1",
+        "2008-08-02T00:00:00.000"
+      ],
+      [
+        "1403864",
+        "332",
+        "1",
+        "2009-01-19T00:00:00.000"
+      ],
+      [
+        "2379",
+        "885",
+        "1",
+        "2008-08-03T00:00:00.000"
+      ]
+    ]
+  },
+  "checks": [
+    {
+      "check": "file_exists",
+      "status": "PASS",
+      "note": "",
+      "value": true
+    },
+    {
+      "check": "file_size",
+      "status": "PASS",
+      "note": "",
+      "value": "1.815 GB"
+    },
+    {
+      "check": "schema_required_columns",
+      "status": "PASS",
+      "note": "",
+      "value": "missing=none"
+    },
+    {
+      "check": "row_count",
+      "status": "PASS",
+      "note": "",
+      "value": "245,066,794"
+    },
+    {
+      "check": "acceptance_votes_exist",
+      "status": "PASS",
+      "note": "CRITICAL: zero here means NO conversion events can be reconstructed",
+      "value": "12,570,342"
+    },
+    {
+      "check": "acceptance_null_PostId",
+      "status": "PASS",
+      "note": "null PostId on acceptance vote = lost conversion event",
+      "value": 0
+    },
+    {
+      "check": "acceptance_null_CreationDate",
+      "status": "PASS",
+      "note": "null date = option(b) sensitivity timing fails",
+      "value": 0
+    },
+    {
+      "check": "re_accepted_posts",
+      "status": "PASS",
+      "note": "expected; Votes-based reconstruction handles these correctly",
+      "value": "0"
+    },
+    {
+      "check": "acceptance_dates_cover_study_window",
+      "status": "PASS",
+      "note": "",
+      "value": "max_date=2025-03-31T00:00:00.000  need>=2024-11-30"
+    },
+    {
+      "check": "cross_file_acceptance_match",
+      "status": "PASS",
+      "note": "unmatched = deleted answers; feeds Limitations \u00a7deleted-content",
+      "value": "12,354,415/12,570,342 matched (1.72% deleted/unmatched)"
+    },
+    {
+      "check": "sample_rows_readable",
+      "status": "PASS",
+      "note": "",
+      "value": "3 acceptance rows returned"
+    }
+  ]
+}

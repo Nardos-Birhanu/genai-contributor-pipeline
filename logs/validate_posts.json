@@ -1,0 +1,256 @@
+{
+  "dataset": "posts",
+  "path": "data/interim/posts.parquet",
+  "run_at": "2026-07-28T10:04:21.485142Z",
+  "overall": "PASS",
+  "metadata": {
+    "file_size_bytes": 1250327971,
+    "file_size_gb": 1.25,
+    "schema": {
+      "Id": "VARCHAR",
+      "PostTypeId": "VARCHAR",
+      "OwnerUserId": "VARCHAR",
+      "CreationDate": "VARCHAR",
+      "ParentId": "VARCHAR",
+      "AcceptedAnswerId": "VARCHAR",
+      "Tags": "VARCHAR"
+    },
+    "row_count": 60361000,
+    "null_owner_count": 988824,
+    "null_owner_pct": 1.6382,
+    "posttype_distribution": {
+      "1": 24239671,
+      "2": 36006816,
+      "3": 167,
+      "4": 56993,
+      "5": 56992,
+      "6": 354,
+      "7": 5,
+      "8": 2
+    },
+    "date_min": "2008-07-31T21:42:52.667",
+    "date_max": "2025-03-31T23:59:12.307",
+    "study_window_row_count": 6157788,
+    "sample_rows": [
+      [
+        "19",
+        "1",
+        "13",
+        "2008-08-01T05:21:22.257",
+        "531"
+      ],
+      [
+        "53",
+        "2",
+        "34",
+        "2008-08-01T13:08:59.487",
+        null
+      ],
+      [
+        "11",
+        "1",
+        "1",
+        "2008-07-31T23:55:37.967",
+        "1248"
+      ],
+      [
+        "18",
+        "2",
+        null,
+        "2008-08-01T05:12:44.193",
+        null
+      ],
+      [
+        "68",
+        "2",
+        "17",
+        "2008-08-01T13:22:04.483",
+        null
+      ]
+    ],
+    "null_owner_by_year": [
+      [
+        "2008",
+        14001
+      ],
+      [
+        "2009",
+        68149
+      ],
+      [
+        "2010",
+        32792
+      ],
+      [
+        "2011",
+        48584
+      ],
+      [
+        "2012",
+        62565
+      ],
+      [
+        "2013",
+        83859
+      ],
+      [
+        "2014",
+        81625
+      ],
+      [
+        "2015",
+        86169
+      ],
+      [
+        "2016",
+        85922
+      ],
+      [
+        "2017",
+        91056
+      ],
+      [
+        "2018",
+        80866
+      ],
+      [
+        "2019",
+        65350
+      ],
+      [
+        "2020",
+        71241
+      ],
+      [
+        "2021",
+        56620
+      ],
+      [
+        "2022",
+        41334
+      ],
+      [
+        "2023",
+        13927
+      ],
+      [
+        "2024",
+        4567
+      ],
+      [
+        "2025",
+        197
+      ]
+    ]
+  },
+  "checks": [
+    {
+      "check": "file_exists",
+      "status": "PASS",
+      "note": "",
+      "value": true
+    },
+    {
+      "check": "file_size",
+      "status": "PASS",
+      "note": "expect >0.5 GB for full SO posts",
+      "value": "1.250 GB"
+    },
+    {
+      "check": "schema_required_columns",
+      "status": "PASS",
+      "note": "all required columns must be present for pipeline",
+      "value": "missing=none"
+    },
+    {
+      "check": "schema_types_all_varchar",
+      "status": "PASS",
+      "note": "build_panel.py uses TRY_CAST; unexpected types may cause silent nulls",
+      "value": "non-varchar required cols: none"
+    },
+    {
+      "check": "row_count",
+      "status": "PASS",
+      "note": "expect >50,000,000 for complete SO dump",
+      "value": "60,361,000"
+    },
+    {
+      "check": "nulls_Id",
+      "status": "PASS",
+      "note": "must be zero \u2014 these are primary keys/timestamps",
+      "value": 0
+    },
+    {
+      "check": "nulls_PostTypeId",
+      "status": "PASS",
+      "note": "must be zero \u2014 these are primary keys/timestamps",
+      "value": 0
+    },
+    {
+      "check": "nulls_CreationDate",
+      "status": "PASS",
+      "note": "must be zero \u2014 these are primary keys/timestamps",
+      "value": 0
+    },
+    {
+      "check": "nulls_OwnerUserId",
+      "status": "PASS",
+      "note": "expected (deleted accounts); >5% is unusual and worth logging",
+      "value": "988,824 (1.64%)"
+    },
+    {
+      "check": "posttype_has_questions",
+      "status": "PASS",
+      "note": "missing questions would break newcomer definition",
+      "value": "PostTypeId=1 present"
+    },
+    {
+      "check": "posttype_has_answers",
+      "status": "PASS",
+      "note": "missing answers means no conversion events",
+      "value": "PostTypeId=2 present"
+    },
+    {
+      "check": "AcceptedAnswerId_only_on_questions",
+      "status": "PASS",
+      "note": "AcceptedAnswerId must only appear on questions (PostTypeId=1)",
+      "value": 0
+    },
+    {
+      "check": "ParentId_not_on_questions",
+      "status": "PASS",
+      "note": "ParentId must only appear on answers (PostTypeId=2)",
+      "value": 0
+    },
+    {
+      "check": "date_range_min",
+      "status": "PASS",
+      "note": "SO launched 2008; expect records from ~2008",
+      "value": "2008-07-31T21:42:52.667"
+    },
+    {
+      "check": "date_range_covers_study_window",
+      "status": "PASS",
+      "note": "dump must cover the full observation window",
+      "value": "max=2025-03-31T23:59:12.307  need>=2024-11-30"
+    },
+    {
+      "check": "study_window_rows",
+      "status": "PASS",
+      "note": "rows in 2021-12-01\u20132024-11-30; expect millions for SO",
+      "value": "6,157,788"
+    },
+    {
+      "check": "sample_rows_readable",
+      "status": "PASS",
+      "note": "",
+      "value": "5 rows returned"
+    },
+    {
+      "check": "null_owner_attrition_computed",
+      "status": "PASS",
+      "note": "spike in 2022-2023 near ban date signals enforcement attrition",
+      "value": "see metadata.null_owner_by_year"
+    }
+  ]
+}

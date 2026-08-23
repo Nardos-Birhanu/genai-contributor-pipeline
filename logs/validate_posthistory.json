@@ -1,0 +1,122 @@
+{
+  "dataset": "posthistory",
+  "path": "data/interim/posthistory.parquet",
+  "run_at": "2026-07-28T10:04:39.027248Z",
+  "overall": "PASS",
+  "metadata": {
+    "file_size_bytes": 1735499825,
+    "schema": {
+      "Id": "VARCHAR",
+      "PostHistoryTypeId": "VARCHAR",
+      "PostId": "VARCHAR",
+      "CreationDate": "VARCHAR",
+      "UserId": "VARCHAR"
+    },
+    "row_count": 162397024,
+    "posthistorytype_distribution": {
+      "1": 24270890,
+      "2": 60360797,
+      "3": 24239462,
+      "4": 3717993,
+      "5": 36426331,
+      "6": 5233080,
+      "7": 38147,
+      "8": 172442,
+      "9": 30439,
+      "10": 1197986,
+      "11": 86365,
+      "12": 513188,
+      "13": 520284,
+      "14": 7965,
+      "15": 4904,
+      "16": 133832,
+      "19": 57519,
+      "20": 1530,
+      "22": 51,
+      "24": 3690019,
+      "33": 383262,
+      "34": 291875,
+      "35": 1349,
+      "36": 26743,
+      "37": 1978,
+      "38": 7903,
+      "50": 293886,
+      "52": 3856,
+      "53": 7,
+      "66": 682941
+    },
+    "lock4_total_ph_postids": 60361014,
+    "lock4_matched": 60361000,
+    "lock4_unmatched": 14,
+    "lock4_unmatched_pct": 0.0,
+    "lock4_enforcement_spike_dec2022": 0
+  },
+  "checks": [
+    {
+      "check": "file_exists",
+      "status": "PASS",
+      "note": "",
+      "value": true
+    },
+    {
+      "check": "file_size",
+      "status": "PASS",
+      "note": "",
+      "value": "1.735 GB"
+    },
+    {
+      "check": "schema_required_columns",
+      "status": "PASS",
+      "note": "",
+      "value": "missing=none"
+    },
+    {
+      "check": "row_count",
+      "status": "PASS",
+      "note": "full SO posthistory should be hundreds of millions of rows",
+      "value": "162,397,024"
+    },
+    {
+      "check": "posthistorytype_distribution_computed",
+      "status": "PASS",
+      "note": "see metadata for full distribution",
+      "value": "30 distinct types"
+    },
+    {
+      "check": "lock4_deleted_post_visibility",
+      "status": "PASS",
+      "note": "Case A (<1%): deleted posts invisible, irreducible limitation. Case B: some history survives, check type breakdown.",
+      "value": "14 unmatched (0.0000%)  Case A"
+    },
+    {
+      "check": "lock4_enforcement_spike_dec2022",
+      "status": "PASS",
+      "note": "high value = ban enforcement signal, relevant for bundled-treatment interpretation",
+      "value": "0 unmatched rows in 2022-12"
+    },
+    {
+      "check": "nulls_PostId",
+      "status": "PASS",
+      "note": "",
+      "value": 0
+    },
+    {
+      "check": "nulls_PostHistoryTypeId",
+      "status": "PASS",
+      "note": "",
+      "value": 0
+    },
+    {
+      "check": "nulls_CreationDate",
+      "status": "PASS",
+      "note": "",
+      "value": 0
+    },
+    {
+      "check": "sample_rows_readable",
+      "status": "PASS",
+      "note": "",
+      "value": 3
+    }
+  ]
+}

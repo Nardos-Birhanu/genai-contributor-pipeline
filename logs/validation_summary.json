@@ -1,0 +1,117 @@
+{
+  "run_at": "2026-07-28T10:05:00.054614Z",
+  "status": "FROZEN",
+  "gates_passed": true,
+  "gate_results": [
+    {
+      "dataset": "posts",
+      "check": "file_exists",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "schema_required_columns",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "nulls_Id",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "nulls_CreationDate",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "date_range_covers_study_window",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "posttype_has_questions",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "posttype_has_answers",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "AcceptedAnswerId_only_on_questions",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "posts",
+      "check": "ParentId_not_on_questions",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "votes",
+      "check": "file_exists",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "votes",
+      "check": "schema_required_columns",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "votes",
+      "check": "acceptance_votes_exist",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "votes",
+      "check": "acceptance_null_PostId",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "votes",
+      "check": "acceptance_null_CreationDate",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    },
+    {
+      "dataset": "votes",
+      "check": "acceptance_dates_cover_study_window",
+      "required": "PASS",
+      "actual": "PASS",
+      "passed": true
+    }
+  ],
+  "dataset_overalls": {
+    "posts": "PASS",
+    "votes": "PASS",
+    "posthistory": "PASS"
+  }
+}

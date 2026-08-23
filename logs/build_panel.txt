@@ -1,0 +1,31 @@
+==================================================================
+PANEL CONSTRUCTION
+Generated: 2026-08-04T14:11:22.770927+00:00
+==================================================================
+  posts:  data/interim\posts.parquet
+  votes:  data/interim\votes.parquet
+  treatment date:   2022-12-01
+  window (months):  12
+  frozen cohorts:   pre 2021-12..2022-11 | post 2022-12..2023-11
+  window restriction applied: True
+  dump coverage end: 2025-03-31 23:59:12.307000
+
+  newcomers before exclusions: 6,363,044
+  after window-completeness exclusion: 6,199,311 (dropped 163,733)
+  after cohort-window exclusion:       750,373 (dropped 5,448,938)
+
+  PANEL SUMMARY
+    [post] n=   305,883  months 2022-12..2023-11
+           primary=0.0761  secondary=0.4105
+    [pre ] n=   444,490  months 2021-12..2022-11
+           primary=0.0931  secondary=0.4019
+
+  total rows: 750,373
+  written -> data/processed\analysis_panel.parquet
+
+
+
+
+  ===========================================
+
+  Design-alignment audit: 18/19 pass. The exception (29,214 rows, faa_accept before faa_created) traces to 6,523,326 source records where an acceptance vote timestamp precedes its answer's creation timestamp. Cause: Stack Exchange releases Votes.CreationDate truncated to date-level for voter anonymity, so same-day acceptances invert when compared against full-precision Posts.CreationDate. Affects only faa_accept and the unreported time_primary_acceptdate_days. All reported outcomes derive from Posts timestamps and are unaffected. The audit check's day-precision assumption was incorrect for this source.
