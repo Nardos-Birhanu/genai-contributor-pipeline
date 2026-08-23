@@ -21,10 +21,11 @@ env/
 # Data files
 # Ignore raw and processed datasets
 data/raw/
-data/processed/
+stackexchange_20250331/
 
 # Large data formats
 *.parquet
+!data/processed/analysis_panel.parquet
 *.xlsx
 *.xml
 *.7z
