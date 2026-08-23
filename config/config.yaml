@@ -1,4 +1,4 @@
-# Single source of truth. Frozen design values.
+# Single source of truth. Fixed study settings used throughout the analysis.
 paths:
   raw_dir: "data/raw"
   interim_dir: "data/interim"
@@ -9,7 +9,7 @@ paths:
 data_source:
   dump_release: "2025-03-31"
   archive: "data/raw/stackoverflow.com.7z"
-  members:                       # exact internal names (confirm with `7z l`)
+  members:                      
     posts: "Posts.xml"
     votes: "Votes.xml"
     posthistory: "PostHistory.xml"
@@ -19,6 +19,6 @@ design:
   conversion_window_months: 12
   pre_cohorts:  ["2021-12", "2022-11"]
   post_cohorts: ["2022-12", "2023-11"]
-  newcomer_post_types: [1, 2]    # Q + A only (comments excluded, Lock 5)
+  newcomer_post_types: [1, 2]    # Q + A only (comments excluded)
   accepted_vote_type: 1          # VoteTypeId=1 = AcceptedByOriginator
   primary_event_timing: "answer_creation"   # option (a); "acceptance_vote" = (b)
