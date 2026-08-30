@@ -37,8 +37,11 @@ results/descriptives/     Descriptive statistics report
 
 ## Quick start
 
-If you have `data/processed/analysis_panel.parquet`, jump straight to
-[Step 6 — Analysis](#6-analysis). 
+The `data` folder contains the analysis-ready dataset at `data/processed/analysis_panel.parquet`. 
+To reproduce every result, figure, and table in the paper **without** downloading the 63 GB archive or running extraction,
+set up the environment (Step 1) and go straight to [Step 6 — Analysis].
+
+Steps 2–5 are only needed to rebuild the panel from the raw Stack Overflow dump.
 
 ---
 
@@ -59,7 +62,7 @@ conda activate css_env
 ## Step 2 — Get the raw data
 
 Download the **Stack Overflow** data dump, release `2025-03-31`, from the Internet
-Archive. Full download details, the access URL, and the SHA-256 checksum are in
+Archive. Full download details, the access URL, and the SHA-256 checksum is in
 `docs/data_source.md`.
 
 Place the archive here:
@@ -212,5 +215,4 @@ policy — does not appear in the public data export.
 
 ## Verification records
 
-Full pipeline documentation is in `docs/pipeline_log.md`. Data source details and the
-archive checksum are in `docs/data_source.md`.
+The archive checksum is in `docs/data_source.md`.
