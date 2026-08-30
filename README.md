@@ -2,7 +2,7 @@
 
 **Did generative AI change how newcomers become contributors on Stack Overflow?**
 
-This repository contains the full data pipeline, analysis code, and manuscript for a
+This repository contains the full data pipeline and analysis code for a
 computational social science study of newcomer-to-contributor conversion before and
 after the December 2022 ChatGPT boundary.
 
@@ -12,7 +12,6 @@ The study asks three questions:
 - Does any change sit at the December boundary, or does it continue an earlier trend?
 - Does any change operate through participation, or through recognition?
 
-The manuscript is in `docs/`.
 
 ---
 
@@ -26,7 +25,7 @@ data/processed/           analysis_panel.parquet — the analysis-ready dataset
 src/data_processing/      extract_stream.py, build_panel.py
 src/analysis/             descriptives.py, survival.py, ph_check.py
 scripts/                  Validation and verification scripts
-docs/                     Manuscript, data provenance, Windows run guide
+docs/                     Data provenance, Windows run guide
 logs/                     Run logs and verification reports
 results/tables/           Model output and summary tables
 results/figures/          Kaplan–Meier figures (PDF and PNG)
